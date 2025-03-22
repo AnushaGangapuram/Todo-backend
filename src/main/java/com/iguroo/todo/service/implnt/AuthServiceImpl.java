@@ -1,11 +1,14 @@
 package com.iguroo.todo.service.implnt;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.iguroo.todo.config.JwtUtil;
 import com.iguroo.todo.dto.LoginDto;
 import com.iguroo.todo.dto.UserDto;
 import com.iguroo.todo.entity.User;
@@ -16,20 +19,22 @@ import com.iguroo.todo.service.AuthService;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
-    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    @Autowired
+    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+    }
 
     @Override
     public String register(@Valid @NotNull UserDto userDto) {
@@ -49,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String login(@Valid @NotNull LoginDto loginDto) {
+    public Map<String, Object> login(@Valid @NotNull LoginDto loginDto) {
         Optional<User> userOpt = userRepository.findByUsername(loginDto.getUsername());
 
         if (userOpt.isEmpty()) {
@@ -57,11 +62,23 @@ public class AuthServiceImpl implements AuthService {
         }
 
         User user = userOpt.get();
-        
+
         if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
             throw new TodoApiException(HttpStatus.UNAUTHORIZED, "Invalid username or password!");
         }
 
-        return "Login successful!";
+        // Generate JWT Tokens
+        String accessToken = jwtUtil.generateAccessToken(user.getUsername());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getUsername());
+
+        // Prepare response
+        Map<String, Object> response = new HashMap<>();
+        response.put("accessToken", accessToken);
+        response.put("refreshToken", refreshToken);
+        response.put("user", Map.of(
+                "username", user.getUsername()
+        ));
+
+        return response;
     }
 }
