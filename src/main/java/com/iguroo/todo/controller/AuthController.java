@@ -10,11 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import com.iguroo.todo.dto.LoginDto;
 import com.iguroo.todo.dto.UserDto;
 import com.iguroo.todo.service.AuthService;
-import com.iguroo.todo.exception.TodoApiException;
 
 import jakarta.validation.Valid;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -23,8 +21,8 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody UserDto regDto) {
-        String response = authService.register(regDto);
+    public ResponseEntity<String> register(@Valid @RequestBody UserDto userDto) {
+        String response = authService.register(userDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -32,11 +30,5 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginDto loginDto) {
         Map<String, String> response = authService.login(loginDto);
         return ResponseEntity.ok(response); // Returning token as JSON
-    }
-
-    // Global exception handler for authentication failures
-    @ExceptionHandler(TodoApiException.class)
-    public ResponseEntity<String> handleTodoApiException(TodoApiException ex) {
-        return new ResponseEntity<>(ex.getMessage(), ex.getStatus());
     }
 }

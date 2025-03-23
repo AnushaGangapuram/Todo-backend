@@ -1,17 +1,13 @@
 package com.iguroo.todo.service;
 
-import java.util.Map;
-
-import org.springframework.stereotype.Service;
-
 import com.iguroo.todo.dto.LoginDto;
 import com.iguroo.todo.dto.UserDto;
 
-@Service
+import java.util.Map;
+
 public interface AuthService {
 
-	String register(UserDto regDto);
+    String register(UserDto userDto);
 
-	Map<String, String> login(LoginDto loginDto);
-
+    Map<String, String> login(LoginDto loginDto);
 }
