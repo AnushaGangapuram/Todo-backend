@@ -7,6 +7,8 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import com.iguroo.todo.config.JwtUtil;
 import com.iguroo.todo.dto.LoginDto;
@@ -19,8 +21,6 @@ import com.iguroo.todo.service.AuthService;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -54,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Map<String, Object> login(@Valid @NotNull LoginDto loginDto) {
+    public Map<String, String> login(@Valid @NotNull LoginDto loginDto) {
         Optional<User> userOpt = userRepository.findByUsername(loginDto.getUsername());
 
         if (userOpt.isEmpty()) {
@@ -67,18 +67,10 @@ public class AuthServiceImpl implements AuthService {
             throw new TodoApiException(HttpStatus.UNAUTHORIZED, "Invalid username or password!");
         }
 
-        // Generate JWT Tokens
-        String accessToken = jwtUtil.generateAccessToken(user.getUsername());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getUsername());
+        // Generate JWT Token
+        String token = jwtUtil.generateAccessToken(user.getUsername());
 
-        // Prepare response
-        Map<String, Object> response = new HashMap<>();
-        response.put("accessToken", accessToken);
-        response.put("refreshToken", refreshToken);
-        response.put("user", Map.of(
-                "username", user.getUsername()
-        ));
-
-        return response;
+        // Return token in a proper format
+        return Map.of("token", token);
     }
 }

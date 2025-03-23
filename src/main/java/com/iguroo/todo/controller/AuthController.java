@@ -29,11 +29,10 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginDto loginDto) {
-        Map<String, Object> token = authService.login(loginDto);
-        return ResponseEntity.ok().body(Map.of("token", token)); // Returning token as JSON
+    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginDto loginDto) {
+        Map<String, String> response = authService.login(loginDto);
+        return ResponseEntity.ok(response); // Returning token as JSON
     }
-
 
     // Global exception handler for authentication failures
     @ExceptionHandler(TodoApiException.class)

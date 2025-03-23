@@ -2,6 +2,8 @@ package com.iguroo.todo.config;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -10,13 +12,13 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private final String SECRET_KEY = "caXbZqMvymVP39UMqRgpLTSo2TnJjy07GokeIrAqOq4=\r\n"
-    		+ "" ; // Keep this safe
+	@Value("${jwt.secret}")
+	private String jwtSecret;
     private final long ACCESS_TOKEN_EXPIRY = 1000 * 60 * 15; // 15 minutes
     private final long REFRESH_TOKEN_EXPIRY = 1000 * 60 * 60 * 24; // 24 hours
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
     public String generateAccessToken(String username) {

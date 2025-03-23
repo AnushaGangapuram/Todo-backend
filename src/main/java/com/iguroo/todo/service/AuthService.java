@@ -12,6 +12,6 @@ public interface AuthService {
 
 	String register(UserDto regDto);
 
-	Map<String, Object> login(LoginDto loginDto);
+	Map<String, String> login(LoginDto loginDto);
 
 }
