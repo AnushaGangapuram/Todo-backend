@@ -18,8 +18,6 @@ import lombok.Setter;
 
 public class TodoDTO {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	
 	@NotBlank (message = "Title cannot be empty")

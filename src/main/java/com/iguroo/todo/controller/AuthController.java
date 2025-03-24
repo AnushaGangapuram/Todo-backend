@@ -14,6 +14,10 @@ import com.iguroo.todo.service.AuthService;
 import jakarta.validation.Valid;
 
 @RestController
+
+
+
+@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/auth")
 public class AuthController {
 

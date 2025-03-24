@@ -1,26 +1,14 @@
 package com.iguroo.todo.service;
 
+import com.iguroo.todo.dto.TodoDTO;
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-
-import com.iguroo.todo.dto.TodoDTO;
-
-@Service
 public interface TodoService {
-
-	TodoDTO addTask(TodoDTO todoDto);
-
-	List<TodoDTO> getAllTask();
-
-	TodoDTO getById(Long id);
-
-	TodoDTO updateTask(Long id, TodoDTO todoDto);
-
-	void deleteTask(Long id);
-
-	TodoDTO completeTask(Long taskId);
-
-	TodoDTO inCompleteTask(Long taskId);
-
+    TodoDTO addTask(Long userId, TodoDTO todoDto);
+    List<TodoDTO> getAllTasks(Long userId);
+    TodoDTO getById(Long userId, Long id);
+    TodoDTO updateTask(Long userId, Long id, TodoDTO todoDto);
+    void deleteTask(Long userId, Long id);
+    TodoDTO completeTask(Long userId, Long taskId);
+    TodoDTO inCompleteTask(Long userId, Long taskId);
 }

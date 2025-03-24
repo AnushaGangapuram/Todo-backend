@@ -1,5 +1,6 @@
 package com.iguroo.todo.service.implnt;
 
+
 import com.iguroo.todo.config.JwtUtil;
 import com.iguroo.todo.dto.LoginDto;
 import com.iguroo.todo.dto.UserDto;
@@ -32,16 +33,16 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String register(UserDto userDto) {
-        // Validate the userDto before saving
         if (userRepository.existsByUsername(userDto.getUsername())) {
-            throw new RuntimeException("Username already exists");
+            throw new TodoApiException(HttpStatus.BAD_REQUEST, "Username already exists");
         }
 
         if (userRepository.existsByEmail(userDto.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new TodoApiException(HttpStatus.BAD_REQUEST, "Email already exists");
         }
 
         User user = new User();
+        user.setFullName(userDto.getFullName()); // ✅ Ensure fullName is set
         user.setUsername(userDto.getUsername());
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user.setEmail(userDto.getEmail());
@@ -51,30 +52,29 @@ public class AuthServiceImpl implements AuthService {
         return "User registered successfully!";
     }
 
+
     @Override
     public Map<String, String> login(LoginDto loginDto) {
         Optional<User> userOpt = userRepository.findByUsername(loginDto.getUsername());
 
         if (userOpt.isEmpty()) {
-            throw new UsernameNotFoundException("Invalid username or password");
+            throw new UsernameNotFoundException("Username not found");
         }
 
         User user = userOpt.get();
 
         if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
-            throw new TodoApiException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
+            throw new TodoApiException(HttpStatus.UNAUTHORIZED, "Invalid password");
         }
 
         // Generate JWT Tokens
         String accessToken = jwtUtil.generateAccessToken(user.getUsername());
         String refreshToken = jwtUtil.generateRefreshToken(user.getUsername());
 
-        // Return token, refresh_token and username
         return Map.of(
             "access_token", accessToken, 
             "refresh_token", refreshToken, 
             "username", user.getUsername()
         );
     }
-
 }
